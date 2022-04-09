@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>simaenaga</title>
+  <link rel="stylesheet" href="static/reset.css">
+  <link rel="stylesheet" href="static/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="shortcut icon" href="/static/img/favicon.ico">
+  <script defer src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script defer src="static/index.js"></script>
+</head>
+
+<body>
+  <div id="wrapper">
+    <div id="app">
+      <header class="header">
+        <div class="header-img">
+          <img src="/static/img/header-logo.png">
+        </div>
+        <p class="header-title">simaenaga</p>
+      </header>
+      <div class="header-shadow"></div>
+
+      <article>
+        <section class="search">
+          <div class="search-box">
+            <span class="search-icon material-icons" @click="search()">search</span>
+            <input class="search-input" v-model="keywords" @keyup.enter="search()" type="text"
+              placeholder="興味があるコトを入力　例）情報 ゲーム">
+          </div>
+        </section>
+
+        <section class="err" v-show="errMsg !== ''">
+          [[ errMsg ]]
+          <img :src="errImg">
+        </section>
+
+        <section class="result" v-if="lecs.length > 0">
+          <div class="result-row result-row-title">
+            <div class="row-point-title">類似度</div>
+            <div class="row-name-title">シラバスリンク</div>
+            <div class="row-desc-title">講義概要</div>
+            <div class="row-id-title">講義番号</div>
+          </div>
+          <lecture-item v-for="lec in lecs" :lec="lec"></lecture-item>
+        </section>
+
+        <section class="desc">
+          <div class="desc-lead">
+            simaenaga は講義を直感的に検索することができるサービスです。<br>
+            興味のあるキーワードを入力すると、コンピュータが意味を解釈して
+            オススメの講義を教えてくれます。
+          </div>
+
+          <div class="usage block">
+            <div class="block-title">どうやって<br>使うの？</div>
+            <div class="block-bar"></div>
+            <div class="block-content">検索バーに好きな言葉を入れると<br>コンピュータが意味を解析して<br>それに近い講義を出力します。</div>
+            <img class="block-img" src="/static/img/graph.png" alt="言語マップ">
+            <svg class="block-shape" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#FFFFFF"
+                d="M57.6,-47.2C70.7,-29.5,74.7,-5.7,70,16.5C65.4,38.8,52.1,59.7,33.1,68.8C14.2,77.9,-10.4,75.3,-32.9,65.5C-55.4,55.7,-75.9,38.9,-80,18.8C-84.2,-1.2,-71.9,-24.4,-55.9,-42.8C-39.8,-61.2,-19.9,-74.8,1.2,-75.7C22.2,-76.6,44.4,-64.9,57.6,-47.2Z"
+                transform="translate(100 100)" />
+            </svg>
+          </div>
+
+          <div class="trick block">
+            <div class="block-title">検索のコツは？</div>
+            <div class="block-bar"></div>
+            <div class="block-content">シンプルな言葉を入力してください。<br>例えば「情報学」は「情報」+「学」<br>と無駄な意味が含まれしまうため<br>意図しない結果になる恐れがあります。
+            </div>
+            <img class="block-img" src="/static/img/graph2.png" alt="言語マップ">
+            <svg class="block-shape" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#FFFFFF"
+                d="M30.9,-52C43.4,-46.3,59.4,-44.9,70.6,-36.9C81.8,-29,88.4,-14.5,88.3,-0.1C88.2,14.4,81.5,28.8,71.8,39.3C62,49.9,49.3,56.7,36.9,57.9C24.4,59.2,12.2,54.9,-2,58.3C-16.1,61.7,-32.2,72.7,-46.1,72.3C-59.9,71.8,-71.5,59.9,-75.6,45.9C-79.7,32,-76.4,16,-75.5,0.5C-74.6,-15,-76.3,-30,-71,-41.9C-65.7,-53.9,-53.6,-62.8,-40.6,-68.2C-27.6,-73.7,-13.8,-75.8,-2.3,-71.8C9.2,-67.8,18.4,-57.8,30.9,-52Z"
+                transform="translate(100 100)" />
+            </svg>
+          </div>
+
+          <div class="why block">
+            <div class="block-title">講義名で検索しても<br>出てこないんだけど？</div>
+            <div class="block-bar"></div>
+            <div class="block-content">simaenagaは普通の検索とは違い言葉の意味で検索します。<br>特定の講義を検索したい場合には適しません。</div>
+            <svg class="block-shape" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#FFFFFF"
+                d="M43.9,-74.6C57.8,-67.9,70.8,-58.1,78.5,-45.2C86.3,-32.2,88.9,-16.1,88.8,0C88.8,16.1,86.1,32.1,78.4,45.1C70.6,58,57.7,67.8,43.8,76.4C29.9,85.1,14.9,92.5,-0.6,93.5C-16,94.5,-32.1,88.9,-44.8,79.6C-57.4,70.2,-66.7,57.1,-75.3,43.2C-83.9,29.3,-91.8,14.6,-92.6,-0.5C-93.4,-15.6,-87.2,-31.2,-78.9,-45.6C-70.6,-59.9,-60.2,-73.1,-46.7,-80C-33.2,-86.9,-16.6,-87.5,-0.8,-86.1C15,-84.7,29.9,-81.2,43.9,-74.6Z"
+                transform="translate(100 100)" />
+            </svg>
+          </div>
+        </section>
+      </article>
+    </div>
+  </div>
+</body>
+
+</html>
